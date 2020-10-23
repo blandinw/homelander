@@ -1,0 +1,13 @@
+sleep 10 && whoami
+sleep 4 && ls
+(command pwd && false
+cooldown 3000
+cd /bin
+)
+#
+# (
+# command env 
+# env foo=bar
+# )
+# >&2 echo "STDERR"
+# sleep 300 && [ $(pmset -g batt | grep -Eo "\d+%" | cut -d% -f1) -le 7 ] && say 'Battery low'
