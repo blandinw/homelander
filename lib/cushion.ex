@@ -3,8 +3,8 @@ defmodule Homelander.Cushion do
 
   @max_wait_ms 60_000
 
-  def start_link(m, a, counter_pid, cooldown, options) do
-    GenServer.start_link(__MODULE__, [m, a, counter_pid, cooldown], options)
+  def start_link(m, a, counter_name, cooldown, options) do
+    GenServer.start_link(__MODULE__, [m, a, counter_name, cooldown], options)
   end
 
   def compute_cooldown(:default, reason, count, started_at) do
@@ -30,17 +30,17 @@ defmodule Homelander.Cushion do
   end
 
   @impl true
-  def init([mod, args, counter_pid, cooldown]) do
+  def init([mod, args, counter_name, cooldown]) do
     Process.flag(:trap_exit, true)
     {:ok, pid} = apply(mod, :start_link, args)
-    {:ok, {pid, mod, args, counter_pid, cooldown, :erlang.monotonic_time()}}
+    {:ok, {pid, mod, args, counter_name, cooldown, :erlang.monotonic_time()}}
   end
 
   @impl true
   def handle_info({:EXIT, pid, reason}, state) do
-    {^pid, mod, args, counter_pid, cooldown, started_at} = state
+    {^pid, mod, args, counter_name, cooldown, started_at} = state
 
-    count = GenServer.call(counter_pid, {:sadface, {mod, args}})
+    count = GenServer.call(counter_name, {:sadface, {mod, args}})
 
     cooldown_ms = compute_cooldown(cooldown, reason, count, started_at)
 

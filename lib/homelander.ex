@@ -28,7 +28,7 @@ defmodule Homelander do
     {Worker, command}
   end
 
-  defp worker_spec(command, counter_pid) do
+  defp worker_spec(command, counter_name) do
     cooldown = case command[:cooldown] do
                  nil -> :default
                  x -> x
@@ -37,7 +37,7 @@ defmodule Homelander do
       id: worker_id(command),
       start:
         {Homelander.Cushion, :start_link,
-         [Homelander.Worker, [command], counter_pid, cooldown, []]}
+         [Homelander.Worker, [command], counter_name, cooldown, []]}
     }
   end
 
@@ -71,8 +71,10 @@ defmodule Homelander do
   def init(config) do
     {:ok, commands} = Path.expand(config) |> read_config()
 
+    counter_name = String.to_atom(config <> ".counter")
+
     children = [
-      Homelander.CushionCounter,
+      {Homelander.CushionCounter, [name: counter_name]},
       if Watchman.installed?() do
         {Watchman,
          [
@@ -87,35 +89,26 @@ defmodule Homelander do
       end
     ]
 
-    {:ok, service_sup} =
+    {:ok, _} =
       Supervisor.start_link(
         Enum.filter(children, &Function.identity/1),
         strategy: :one_for_one
       )
 
-    counter_pid =
-      Supervisor.which_children(service_sup)
-      |> Enum.find_value(fn x ->
-        case x do
-          {Homelander.CushionCounter, pid, _, _} -> pid
-          _ -> nil
-        end
-      end)
-
     {:ok, pid} =
       Supervisor.start_link(
-        Enum.map(commands, fn x -> worker_spec(x, counter_pid) end),
+        Enum.map(commands, fn x -> worker_spec(x, counter_name) end),
         max_restarts: 100,
         max_seconds: 1,
         strategy: :one_for_one
       )
 
-    {:ok, {config, pid, counter_pid, commands}}
+    {:ok, {config, pid, counter_name, commands}}
   end
 
   @impl true
   def handle_info({:modified, config, files}, state) do
-    {^config, sup_pid, counter_pid, old_commands} = state
+    {^config, sup_pid, counter_name, old_commands} = state
     basename = Path.basename(config)
     [^basename] = files
 
@@ -131,10 +124,10 @@ defmodule Homelander do
         end)
 
         Enum.each(add, fn x ->
-          {:ok, _} = Supervisor.start_child(sup_pid, worker_spec(x, counter_pid))
+          {:ok, _} = Supervisor.start_child(sup_pid, worker_spec(x, counter_name))
         end)
 
-        {:noreply, {config, sup_pid, counter_pid, commands}}
+        {:noreply, {config, sup_pid, counter_name, commands}}
 
       _ ->
         Logger.error("could not parse #{config}")
