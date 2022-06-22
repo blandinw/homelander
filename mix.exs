@@ -12,7 +12,7 @@ defmodule Homelander.MixProject do
     [
       app: :homelander,
       version: "0.1.0",
-      elixir: "~> 1.10",
+      elixir: "~> 1.13",
       deps: deps(),
       escript: escript(),
       releases: releases()
