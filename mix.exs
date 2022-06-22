@@ -44,7 +44,6 @@ defmodule Homelander.MixProject do
   defp deps do
     [
       {:jason, "~> 1.2"},
-      {:distillery, "~> 2.1"}
     ]
   end
 end

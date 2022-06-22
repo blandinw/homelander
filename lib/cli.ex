@@ -1,7 +1,6 @@
 require Logger
 
 defmodule Homelander.CLI do
-  @configpath "~/.homelanderrc"
 
   def sample do
     """
@@ -23,6 +22,10 @@ defmodule Homelander.CLI do
     |> String.trim()
   end
 
+  def default_config() do
+    "~/.homelanderrc"
+  end
+
   def main(argv) do
     # catch C-c, etc.
     System.at_exit(fn status ->
@@ -42,12 +45,14 @@ defmodule Homelander.CLI do
       #{sample()}
       """ |> String.trim)
 
+      System.stop(0)
       exit(:normal)
     end
 
     if "--check" in argv do
       rand_b64 = :crypto.strong_rand_bytes(16) |> Base.encode64()
       IO.puts("#{rand_b64}")
+      System.stop(0)
       exit(:normal)
     end
 
@@ -57,7 +62,7 @@ defmodule Homelander.CLI do
           path
 
         _ ->
-          @configpath
+          default_config()
       end
 
     case Homelander.supervise(config) do
@@ -90,6 +95,8 @@ defmodule Homelander.CLI do
           """
           |> String.trim()
         )
+        System.stop(0)
+        exit(:normal)
     end
   end
 end
