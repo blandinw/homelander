@@ -70,6 +70,11 @@ while [ $# -gt 0 ]; do
       shift
       ;;
 
+    --verbose)
+      export HOMELANDER_VERBOSE=1
+      shift
+      ;;
+
     *)
       export HOMELANDER_CONFIG="$1"
       shift

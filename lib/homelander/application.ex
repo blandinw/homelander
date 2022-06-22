@@ -13,6 +13,7 @@ defmodule Homelander.Application do
         Homelander.CLI.main([
           if env_defined? "HOMELANDER_CHECK" do "--check" end,
           if env_defined? "HOMELANDER_HELP" do "--help" end,
+          if env_defined? "HOMELANDER_VERBOSE" do "--verbose" end,
           env "HOMELANDER_CONFIG"
         ] |> Enum.filter(fn x -> x end))
       end)

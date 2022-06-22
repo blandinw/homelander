@@ -69,7 +69,8 @@ defmodule Homelander do
 
   @impl true
   def init(config) do
-    {:ok, commands} = Path.expand(config) |> read_config()
+    config = Path.expand(config)
+    {:ok, commands} = read_config(config)
 
     counter_name = String.to_atom(config <> ".counter")
 

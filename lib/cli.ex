@@ -56,6 +56,13 @@ defmodule Homelander.CLI do
       exit(:normal)
     end
 
+    argv = if "--verbose" in argv do
+      Logger.configure_backend(:console, level: :debug)
+      List.delete(argv, "--verbose")
+    else
+      argv
+    end
+
     config =
       case argv do
         [path] ->

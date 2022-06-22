@@ -25,7 +25,7 @@ spotifyd --no-daemon
 - Runs commands in a shell environment, allowing easy log redirection, or recurring tasks using `sleep`
 - Robustness provided by supervisor trees from Erlang/OTP
 - Can match patterns in command output and trigger a restart (e.g. error message, etc.) using the `restart_on` attribute
-- Reloads config file when modified and makes the necessary changes on the fly if [watchman](https://github.com/facebook/watchman) is installed
+- Reloads config file when modified and makes the necessary changes on the fly if [watchman](https://github.com/facebook/watchman) is installed and config directory is watched
 - Uses exponential backoff when supervised command keeps failing
 
 ## Installation

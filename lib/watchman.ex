@@ -1,3 +1,5 @@
+require Logger
+
 defmodule Watchman.Query do
   defstruct [:generator, expression: %{}, fields: ["name"]]
 end
@@ -60,6 +62,10 @@ defmodule Watchman do
       case Jason.decode!(chunk) do
         %{"subscription" => ^subscription_id, "files" => files} ->
           send(pid, {:modified, subscription_id, files})
+
+        %{"error" => error} ->
+          Logger.error("watchman error: #{inspect(error)}")
+          nil
 
         _ ->
           nil

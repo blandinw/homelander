@@ -1,5 +1,5 @@
 import Config
 
 config :logger, :console,
-  # level: :debug
+  level: :info,
   format: "$time $metadata[$level] $message\n"
